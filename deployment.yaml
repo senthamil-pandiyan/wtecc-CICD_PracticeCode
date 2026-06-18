@@ -19,10 +19,7 @@ spec:
     spec:
       containers:
         - name: flask-app
-
-          # ✅ Use prebuilt image (VERY IMPORTANT)
-          # Replace this if your lab gives a specific image
-          image: quay.io/ibmdevops/flask-restplus-app:latest
+          image: nginx:latest
 
           ports:
             - containerPort: 5000
