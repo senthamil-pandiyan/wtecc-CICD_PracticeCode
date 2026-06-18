@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+  labels:
+    app: flask-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: flask-app
+
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - name: flask-app
+
+          # ✅ Use prebuilt image (VERY IMPORTANT)
+          # Replace this if your lab gives a specific image
+          image: quay.io/ibmdevops/flask-restplus-app:latest
+
+          ports:
+            - containerPort: 5000
+
+          # ✅ Mount your Tekton PVC
+          volumeMounts:
+            - name: pipeline-storage
+              mountPath: /workspace
+
+      volumes:
+        - name: pipeline-storage
+          persistentVolumeClaim:
+            claimName: pipelinerun-pvc
