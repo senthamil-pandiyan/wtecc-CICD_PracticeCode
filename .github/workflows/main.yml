@@ -1,4 +1,5 @@
 name: CI-CD Pipeline
+
 on:
   push:
     branches:
@@ -13,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # ✅ Step 2: Set up Python (for flake8)
+    # ✅ Step 2: Set up Python
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -24,45 +25,47 @@ jobs:
       run: |
         pip install flake8
 
-    # ✅ Step 4: Run flake8
+    # ✅ Step 4: Run flake8 (ignore long line errors)
     - name: Run flake8
       run: |
         flake8 . --ignore=E501
 
-    # ✅ Step 5: Setup Node (for ESLint)
+    # ✅ Step 5: Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
 
-    # ✅ Step 6: Install ESLint
+    # ✅ Step 6: Install ESLint (use v8 to avoid config issues)
     - name: Install ESLint
       run: |
-        npm install eslint
+        npm install eslint@8
 
-    # ✅ Step 7: Run ESLint
+    # ✅ Step 7: Run ESLint (don’t fail pipeline)
     - name: Run ESLint
       run: |
-        npx eslint . || true  
+        npx eslint . || true
 
+    # ✅ Step 8: Install OpenShift CLI
     - name: Install OpenShift CLI
       run: |
         curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
         tar -xvf oc.tar.gz
         sudo mv oc /usr/local/bin/
         oc version
-      
-    # ✅ Step 15: Deploy application
-    
+
+    # ✅ Step 9: Login + Deploy
     - name: Deploy to OpenShift
       run: |
         oc login ${{ secrets.OPENSHIFT_SERVER }} \
-        --token=${{ secrets.OPENSHIFT_TOKEN }} \
-        --insecure-skip-tls-verify=true
+          --token=${{ secrets.OPENSHIFT_TOKEN }} \
+          --insecure-skip-tls-verify=true
+
         oc project ${{ secrets.OPENSHIFT_PROJECT }}
+
         oc apply -f deployment.yaml
 
-    # ✅ Step 16: Verify rollout
+    # ✅ Step 10: Verify rollout
     - name: Verify Deployment
       run: |
-        oc rollout status deployment/my-app
+        oc rollout status deployment/flask-app
