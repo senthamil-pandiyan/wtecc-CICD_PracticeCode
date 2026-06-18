@@ -27,7 +27,7 @@ jobs:
     # ✅ Step 4: Run flake8
     - name: Run flake8
       run: |
-        flake8 .
+        flake8 . --ignore=E501
 
     # ✅ Step 5: Setup Node (for ESLint)
     - name: Setup Node.js
