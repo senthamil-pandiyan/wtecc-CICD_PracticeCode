@@ -44,10 +44,22 @@ jobs:
     - name: Run ESLint
       run: |
         npx eslint . || true  
-        
+
+    - name: Install OpenShift CLI
+      run: |
+        curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
+        tar -xvf oc.tar.gz
+        sudo mv oc /usr/local/bin/
+        oc version
+      
     # ✅ Step 15: Deploy application
+    
     - name: Deploy to OpenShift
       run: |
+        oc login ${{ secrets.OPENSHIFT_SERVER }} \
+        --token=${{ secrets.OPENSHIFT_TOKEN }} \
+        --insecure-skip-tls-verify=true
+        oc project ${{ secrets.OPENSHIFT_PROJECT }}
         oc apply -f deployment.yaml
 
     # ✅ Step 16: Verify rollout
